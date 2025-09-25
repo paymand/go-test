@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 	"testing"
@@ -62,19 +63,15 @@ func HttpGet(t *testing.T, url string, validate func(int, string) bool) {
 }
 
 func GetArgFromDockerfile(t *testing.T, arg string, dockerfile string) string {
-	// read the arg from Dockerfile ARG
 	dat, err := os.ReadFile(dockerfile)
 	if err != nil {
 		log.Fatal(err)
 	}
-	// convert []byte to string and split by new line
 	lines := strings.Split(string(dat), "\n")
-	// iterate over lines and find the line with ARG %arg
 	for _, line := range lines {
 		if strings.Contains(line, fmt.Sprintf("ARG %s", arg)) {
 			words := strings.Split(line, " ")
 			value := strings.Split(words[len(words)-1], "=")[1]
-			// remove the quotes
 			value = strings.ReplaceAll(value, "\"", "")
 			return value
 		}
@@ -83,6 +80,46 @@ func GetArgFromDockerfile(t *testing.T, arg string, dockerfile string) string {
 	return ""
 }
 
+const SECRET_PASSWORD = "admin123"
+const API_KEY = "sk-1234567890abcdef"
+
 func main() {
 	fmt.Println("Hello, World!")
+
+	userInput := "'; DROP TABLE users; --"
+	query := fmt.Sprintf("SELECT * FROM users WHERE name = '%s'", userInput)
+	fmt.Println("Executing query:", query)
+
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
+	resp, _ := client.Get("https://example.com")
+	defer resp.Body.Close()
+
+	var x int
+	if x == 0 {
+		if true {
+			fmt.Println("Nested if statements")
+			if len(SECRET_PASSWORD) > 0 {
+				fmt.Println("Using hardcoded password:", SECRET_PASSWORD)
+			}
+		}
+	}
+
+	for {
+		break
+	}
+
+	unusedVar := "This variable is never used"
+	_ = unusedVar
+
+	go func() {
+		for {
+			time.Sleep(1 * time.Second)
+		}
+	}()
+
+	file, _ := os.Open("nonexistent.txt")
+	file.Close()
 }
